@@ -15,6 +15,16 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>2.16.4.Final</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
+
+    <azure.functions.maven.plugin.version>1.22.0</azure.functions.maven.plugin.version>
+    <quarkus.package.type>uber-jar</quarkus.package.type>
+
+    <function>quarkus</function>
+    <functionAppName>${resourceGroup}-functions-quarkus</functionAppName>
+    <functionAppRegion></functionAppRegion>
+    <functionSubscriptionId></functionSubscriptionId>
+    <resources-plugin.version>3.1.0</resources-plugin.version>
+    <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -34,6 +44,10 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-azure-functions-http</artifactId>
+    </dependency>    
+    <dependency>
+      <groupId>io.quarkus</groupId>
       <artifactId>quarkus-arc</artifactId>
     </dependency>
     <dependency>
@@ -49,6 +63,30 @@
   </dependencies>
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>enforce-property</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireProperty>
+                  <property>resourceGroup</property>
+                  <message>You must set a resourceGroup property!</message>
+                  <regex>^[a-zA-Z0-9-]*{9,16}$</regex>
+                  <regexMessage>The resourceGroup property must have between 9 - 16 characters and consist only of letters, numbers, and hyphens.</regexMessage>
+                </requireProperty>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>${quarkus.platform.group-id}</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
@@ -83,6 +121,97 @@
           </systemPropertyVariables>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>com.microsoft.azure</groupId>
+        <artifactId>azure-functions-maven-plugin</artifactId>
+        <version>${azure.functions.maven.plugin.version}</version>
+        <configuration>
+          <auth>
+            <type>device_code</type>
+            <tenant>${tenantId}</tenant>
+          </auth>
+          <hostJson>${stagingDirectory}/host.json</hostJson>
+          <localSettingsJson>${stagingDirectory}/local.settings.json</localSettingsJson>
+          <appName>${functionAppName}</appName>
+          <region>${functionAppRegion}</region>
+          <resourceGroup>${resourceGroup}</resourceGroup>
+          <subscriptionId>${functionSubscriptionId}</subscriptionId>
+          <runtime>
+            <os>linux</os>
+            <javaVersion>17</javaVersion>
+          </runtime>
+          <appSettings>
+            <property>
+              <name>FUNCTIONS_EXTENSION_VERSION</name>
+              <value>~4</value>
+            </property>
+          </appSettings>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>${resources-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>copy-base-azure-config</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <overwrite>true</overwrite>
+              <outputDirectory>${stagingDirectory}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/azure-config</directory>
+                  <includes>
+                    <include>host.json</include>
+                    <include>local.settings.json</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-function-json</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <overwrite>true</overwrite>
+              <outputDirectory>${stagingDirectory}/quarkus</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.basedir}/azure-config</directory>
+                  <filtering>true</filtering>
+                  <includes>
+                    <include>function.json</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.coderplus.maven.plugins</groupId>
+        <artifactId>copy-rename-maven-plugin</artifactId>
+        <version>1.0.1</version>
+        <executions>
+          <execution>
+            <id>rename-file</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <sourceFile>${project.build.directory}/${project.artifactId}-${project.version}-runner.jar</sourceFile>
+              <destinationFile>${stagingDirectory}/${project.artifactId}-${project.version}.jar</destinationFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>      
     </plugins>
   </build>
   <profiles>
