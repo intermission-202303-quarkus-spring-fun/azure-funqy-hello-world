@@ -1,4 +1,4 @@
-package cloud.intermission.quarkus.model;
+package cloud.intermission.quarkus.invoice;
 
 import java.util.List;
 

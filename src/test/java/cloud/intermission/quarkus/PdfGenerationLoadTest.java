@@ -6,9 +6,9 @@ import io.gatling.javaapi.http.*;
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.*;
 
-public class GatlingLoadTest extends Simulation {
+public class PdfGenerationLoadTest extends Simulation {
   private HttpProtocolBuilder httpProtocol = http
-    .baseUrl("https://xkvexppvsuyh-functions-quarkus.azurewebsites.net")
+     .baseUrl(System.getProperty("targetUrl"))
     .inferHtmlResources()
     .acceptHeader("*/*")
     .contentTypeHeader("application/json")

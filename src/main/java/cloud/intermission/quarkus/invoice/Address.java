@@ -1,4 +1,4 @@
-package cloud.intermission.quarkus.model;
+package cloud.intermission.quarkus.invoice;
 
 record Address (
     String line1,

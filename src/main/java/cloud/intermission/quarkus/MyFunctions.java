@@ -1,6 +1,7 @@
 package cloud.intermission.quarkus;
 
-import cloud.intermission.quarkus.model.Invoice;
+import cloud.intermission.quarkus.amortization.Loan;
+import cloud.intermission.quarkus.invoice.Invoice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import io.quarkus.funqy.Funq;
@@ -11,6 +12,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Base64;
 
 @ApplicationScoped
@@ -39,6 +41,11 @@ public class MyFunctions {
         var bytes = htmlToPdf(html);
 
         return bytes2Base64(bytes);
+    }
+
+    @Funq
+    public Loan.Amortization amortization(Loan loan) {
+        return loan.amortization();
     }
 
     private byte[] htmlToPdf(String html) {

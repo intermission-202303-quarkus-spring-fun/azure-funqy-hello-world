@@ -1,0 +1,65 @@
+###
+
+POST {{url}}/api/render
+Content-Type: application/json
+
+{
+  "from": {
+    "name": "company",
+    "logoFile": null,
+    "address": {
+      "line1": "line1",
+      "line2": "line2",
+      "city": "city",
+      "state": "state",
+      "country": "county",
+      "zipCode": "zip"
+    },
+    "email": "info@company,,com",
+    "website": "http://acme.com",
+    "phone": "+123456789"
+  },
+  "to": {
+    "name": "company",
+    "logoFile": null,
+    "address": {
+      "line1": "line1",
+      "line2": "line2",
+      "city": "city",
+      "state": "state",
+      "country": "county",
+      "zipCode": "zip"
+    },
+    "email": "info@company,,com",
+    "website": "http://acme.com",
+    "phone": "+123456789"
+  },
+  "date": "2023-03-10",
+  "due": "+999999999-12-31",
+  "attention": "attention",
+  "id": "id",
+  "items": [
+    {
+      "description": "description",
+      "quantity": 1,
+      "unitPrice": 1,
+      "totalPrice": 1
+    }
+  ],
+  "subTotal": 1,
+  "taxRate": 0,
+  "taxAmount": 0,
+  "total": 1,
+  "notice": "notice"
+}
+
+###
+
+POST {{url}}/api/amortization
+Content-Type: application/json
+
+{
+  "totalLoan": "100.0",
+  "currentInterestRate": "0.01",
+  "repaymentPerYear": "50.0"
+}

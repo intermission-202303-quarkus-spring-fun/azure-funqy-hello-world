@@ -1,4 +1,4 @@
-package cloud.intermission.quarkus.model;
+package cloud.intermission.quarkus.invoice;
 
 record Company(
     String name,

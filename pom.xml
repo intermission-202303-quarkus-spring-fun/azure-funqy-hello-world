@@ -15,14 +15,17 @@
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <quarkus.platform.version>2.16.4.Final</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
+    <gatling-plugin.version>4.3.0</gatling-plugin.version>
+    <gatling-highcharts.version>3.9.2</gatling-highcharts.version>
 
     <azure.functions.maven.plugin.version>1.22.0</azure.functions.maven.plugin.version>
     <quarkus.package.type>uber-jar</quarkus.package.type>
 
     <function>quarkus</function>
     <functionAppName>${resourceGroup}-functions-quarkus</functionAppName>
-    <functionAppRegion></functionAppRegion>
+    <functionAppRegion>centralus</functionAppRegion>
     <functionSubscriptionId></functionSubscriptionId>
+    <functionPricingTier></functionPricingTier>
     <resources-plugin.version>3.1.0</resources-plugin.version>
     <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
 
@@ -97,15 +100,45 @@
       <version>2.4.0</version>
     </dependency>
 
+    <dependency>
+      <groupId>io.gatling.highcharts</groupId>
+      <artifactId>gatling-charts-highcharts</artifactId>
+      <version>${gatling-highcharts.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
+      <plugin>
+        <groupId>io.gatling</groupId>
+        <artifactId>gatling-maven-plugin</artifactId>
+        <version>${gatling-plugin.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+        <version>1.0.0</version>
+        <executions>
+          <execution>
+            <phase>initialize</phase>
+            <goals>
+              <goal>read-project-properties</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <files>
+            <file>project.properties</file>
+          </files>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
         <version>3.1.0</version>
         <executions>
           <execution>
+            <phase>initialize</phase>
             <id>enforce-property</id>
             <goals>
               <goal>enforce</goal>
@@ -173,6 +206,7 @@
           <region>${functionAppRegion}</region>
           <resourceGroup>${resourceGroup}</resourceGroup>
           <subscriptionId>${functionSubscriptionId}</subscriptionId>
+          <pricingTier>${functionPricingTier}</pricingTier>
           <runtime>
             <os>linux</os>
             <javaVersion>17</javaVersion>
